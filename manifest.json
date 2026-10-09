@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "২১ দিনের মিশন ড্যাশবোর্ড",
+  "short_name": "মিশন ট্র্যাকার",
+  "description": "২১ দিনের HSC ও টেক স্কিল প্রগ্রেস ট্র্যাকার",
+  "lang": "bn",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1120",
+  "theme_color": "#1e293b",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

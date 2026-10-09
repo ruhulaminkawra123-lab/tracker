@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>২১ দিনের মিশন ড্যাশবোর্ড</title>
+  <meta name="description" content="২১ দিনের HSC ও টেক স্কিল প্রগ্রেস ট্র্যাকার">
+  <meta name="theme-color" content="#1e293b">
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1120'/%3E%3Ccircle cx='50' cy='50' r='37' fill='%231e293b' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M30 51l14 14 27-29' fill='none' stroke='%2322c55e' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="মিশন ট্র্যাকার">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    :root {
+      --bg: #0b1120; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8;
+      --accent: #38bdf8; --success: #22c55e; --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Noto Sans Bengali", "Kalpurush", "Siyam Rupali", system-ui, -apple-system, sans-serif; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--bg); color: var(--text); display: flex; justify-content: center;
+      padding: calc(20px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+      min-height: 100vh;
+    }
+    .container { max-width: 900px; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+
+    header { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+    header h1 { font-size: 1.4rem; color: var(--accent); margin-bottom: 6px; line-height: 1.4; }
+    header p { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
+
+    .install-btn {
+      display: none; margin: 14px auto 0; background: var(--accent); color: #0b1120;
+      border: none; padding: 11px 22px; border-radius: 999px; font-weight: 800; font-size: 0.95rem; cursor: pointer;
+    }
+    .install-btn.show { display: inline-block; }
+    .install-btn:active { transform: scale(0.97); }
+    .ios-hint { display: none; margin-top: 12px; font-size: 0.82rem; color: var(--accent); background: rgba(56,189,248,.08); border: 1px dashed rgba(56,189,248,.4); padding: 8px 12px; border-radius: 8px; }
+    .ios-hint.show { display: block; }
+
+    .progress-box { margin-top: 15px; }
+    .progress-bar-bg { background: #334155; height: 12px; border-radius: 6px; overflow: hidden; }
+    .progress-bar-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.3s ease; }
+    .progress-text { font-size: 0.85rem; margin-top: 6px; color: var(--muted); }
+
+    .dashboard-pinned-card {
+      background: linear-gradient(145deg, #1e293b, #172554); border: 2px solid var(--accent);
+      border-radius: 12px; padding: 22px; box-shadow: 0 8px 20px rgba(0,0,0,.4);
+    }
+    .pinned-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 12px; margin-bottom: 16px; }
+    .pinned-badge { display: inline-block; background: var(--accent); color: #0b1120; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; margin-bottom: 6px; }
+    .pinned-title { font-size: 1.25rem; font-weight: bold; }
+    .pinned-status { font-size: 0.95rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+    .checklist { display: flex; flex-direction: column; gap: 12px; }
+    .task-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.04); padding: 14px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: all .2s ease; }
+    .task-item:hover { border-color: var(--border); background: rgba(255,255,255,.07); }
+    .task-item.checked { background: rgba(34,197,94,.1); border-color: rgba(34,197,94,.3); }
+    .task-item input[type="checkbox"] { width: 22px; height: 22px; flex-shrink: 0; accent-color: var(--success); cursor: pointer; }
+    .task-text { flex-grow: 1; }
+    .task-text strong { display: block; font-size: 0.95rem; line-height: 1.45; }
+    .task-text span { display: block; font-size: 0.82rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+    .nav-section, .export-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .nav-title { font-size: 1rem; color: var(--muted); margin-bottom: 12px; }
+    .days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+    .day-btn { background: #0f172a; border: 1px solid var(--border); color: var(--text); padding: 10px 0; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: .2s; }
+    .day-btn.active { background: var(--accent); color: #0b1120; border-color: var(--accent); font-weight: bold; }
+    .day-btn.completed { border-color: var(--success); color: var(--success); }
+    .day-btn.active.completed { color: #0b1120; box-shadow: 0 0 0 2px var(--success); }
+
+    .export-section { display: flex; flex-direction: column; gap: 12px; }
+    .export-btn { background: var(--success); color: #000; font-weight: bold; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; }
+    textarea { width: 100%; height: 130px; background: #070d17; border: 1px solid var(--border); color: #e2e8f0; padding: 10px; border-radius: 8px; font-family: monospace; resize: none; font-size: 0.85rem; }
+
+    .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px); background: var(--success); color: #000; font-weight: 700; padding: 10px 18px; border-radius: 999px; opacity: 0; pointer-events: none; transition: .25s; font-size: .9rem; z-index: 10; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>২১ দিনের মিশন ড্যাশবোর্ড (HSC + টেক স্কিল)</h1>
+    <p>প্রতিদিনের সেশন কমপ্লিট করে টিক দাও। ধারাবাহিকতাই একমাত্র রাস্তা।</p>
+    <button class="install-btn" id="install-btn" type="button">📲 ইনস্টল করুন (Install App)</button>
+    <div class="ios-hint" id="ios-hint">iPhone/iPad-এ ইনস্টল করতে Safari-র <b>Share</b> বাটনে ট্যাপ করে <b>"Add to Home Screen"</b> বেছে নাও।</div>
+    <div class="progress-box">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="overall-bar"></div></div>
+      <div class="progress-text" id="overall-text">অগ্রগতি: ০% সম্পন্ন (০/১০৫ সেশন)</div>
+    </div>
+  </header>
+
+  <div class="dashboard-pinned-card">
+    <div class="pinned-header">
+      <div>
+        <span class="pinned-badge">ড্যাশবোর্ড ভিউ</span>
+        <div class="pinned-title" id="active-day-label">দিন ১ এর চেকলিস্ট</div>
+      </div>
+      <div class="pinned-status" id="day-percent">০% সম্পন্ন</div>
+    </div>
+    <div class="checklist" id="tasks-container"></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-title">অন্যান্য দিনের ডাটা দেখতে বা পরিবর্তন করতে সিলেক্ট করুন:</div>
+    <div class="days-grid" id="days-container"></div>
+  </div>
+
+  <div class="export-section">
+    <h3>২১ দিনের অগ্রগতি রিপোর্ট (টিচারকে দেওয়ার জন্য ডাটা)</h3>
+    <button class="export-btn" id="export-btn" type="button">রিপোর্ট তৈরি ও কপি করুন</button>
+    <textarea id="export-box" readonly placeholder="বাটনে ক্লিক করলে ২১ দিনের সব সেশনের বিস্তারিত রিপোর্ট এখানে আসবে..."></textarea>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const SESSIONS = [
+    { title: "সেশন ১ (৭:০০ - ৯:০০ AM)", desc: "HSC ১ম ধাপ (মুখস্থ ও তাত্ত্বিক বিষয়)" },
+    { title: "সেশন ২ (১০:০০ - ১১:৩০ AM)", desc: "টেক সেশন + স্পোকেন টেক-এক্সপ্লেনেশন (লিনাক্স/নেটওয়ার্কিং প্র্যাকটিস + ২০ মিনিট জোরে ইংরেজিতে টপিক প্রেজেন্টেশন)" },
+    { title: "সেশন ৩ (২:০০ - ৩:৩০ PM)", desc: "HSC ২য় ধাপ (নোট ও বিগত বছরের বোর্ড প্রশ্ন সমাধান)" },
+    { title: "সেশন ৪ (৬:৩০ - ৮:০০ PM)", desc: "HSC ৩য় ধাপ + স্পোকেন লাউড রিডিং (ইংরেজি ও রিভিশন)" },
+    { title: "সেশন ৫ (৯:০০ - ১০:৩০ PM)", desc: "HSC সমাপনী ও দিনের পড়া মূল্যায়ন" }
+  ];
+  const DAYS = 21, N = SESSIONS.length, TOTAL = DAYS * N;
+  const bn = (n) => String(n).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[d]);
+
+  // Safe storage helpers
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+
+  let currentDay = parseInt(store.get('hsc_last_active_day')) || 1;
+  if (currentDay < 1 || currentDay > DAYS) currentDay = 1;
+  let trackerData = {};
+  try { trackerData = JSON.parse(store.get('hsc_tracker_data')) || {}; } catch (e) { trackerData = {}; }
+
+  function initData() {
+    for (let d = 1; d <= DAYS; d++) {
+      let arr = Array.isArray(trackerData[d]) ? trackerData[d] : [];
+      // normalize to N entries (keeps old saved ticks)
+      trackerData[d] = Array.from({ length: N }, (_, i) => !!arr[i]);
+    }
+    saveData();
+  }
+
+  function saveData() {
+    store.set('hsc_tracker_data', JSON.stringify(trackerData));
+    store.set('hsc_last_active_day', currentDay);
+  }
+
+  function renderDayNav() {
+    const container = document.getElementById('days-container');
+    container.innerHTML = '';
+    for (let d = 1; d <= DAYS; d++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'day-btn' + (d === currentDay ? ' active' : '') + (trackerData[d].every(Boolean) ? ' completed' : '');
+      btn.textContent = `দিন ${bn(d)}`;
+      btn.onclick = () => { currentDay = d; saveData(); renderUI(); };
+      container.appendChild(btn);
+    }
+  }
+
+  function renderTasks() {
+    document.getElementById('active-day-label').textContent = `দিন ${bn(currentDay)} এর চেকলিস্ট`;
+    const container = document.getElementById('tasks-container');
+    container.innerHTML = '';
+    SESSIONS.forEach((s, i) => {
+      const checked = trackerData[currentDay][i];
+      const item = document.createElement('label');
+      item.className = 'task-item' + (checked ? ' checked' : '');
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = checked;
+      cb.onchange = (e) => { trackerData[currentDay][i] = e.target.checked; saveData(); renderUI(); };
+
+      const txt = document.createElement('div');
+      txt.className = 'task-text';
+      const strong = document.createElement('strong'); strong.textContent = s.title;
+      const span = document.createElement('span'); span.textContent = s.desc;
+      txt.append(strong, span);
+
+      item.append(cb, txt);
+      container.appendChild(item);
+    });
+    const done = trackerData[currentDay].filter(Boolean).length;
+    document.getElementById('day-percent').textContent = `${bn(Math.round(done / N * 100))}% সম্পন্ন`;
+  }
+
+  function updateProgress() {
+    let done = 0;
+    for (let d = 1; d <= DAYS; d++) done += trackerData[d].filter(Boolean).length;
+    const pct = Math.round(done / TOTAL * 100);
+    document.getElementById('overall-bar').style.width = pct + '%';
+    document.getElementById('overall-text').textContent = `অগ্রগতি: ${bn(pct)}% সম্পন্ন (${bn(done)}/${bn(TOTAL)} সেশন)`;
+  }
+
+  function renderUI() { renderDayNav(); renderTasks(); updateProgress(); }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  async function exportData() {
+    let report = `=== ২১ দিনের HSC ও স্কিল ট্র্যাকার রিপোর্ট ===\n\n`;
+    let total = 0;
+    for (let d = 1; d <= DAYS; d++) {
+      const c = trackerData[d].filter(Boolean).length;
+      total += c;
+      report += `দিন ${bn(d)}: ${bn(c)}/${bn(N)} সেশন সম্পন্ন [${trackerData[d].map(t => t ? '✓' : '✗').join(' ')}]\n`;
+    }
+    report += `\nসর্বমোট সেশন সম্পন্ন: ${bn(total)}/${bn(TOTAL)} (${bn(Math.round(total / TOTAL * 100))}%)\n`;
+
+    const box = document.getElementById('export-box');
+    box.value = report;
+    let ok = false;
+    try { await navigator.clipboard.writeText(report); ok = true; }
+    catch (e) { box.select(); try { ok = document.execCommand('copy'); } catch (_) {} }
+    toast(ok ? '✓ রিপোর্ট কপি হয়েছে!' : 'কপি হয়নি — বক্স থেকে নিজে কপি করো');
+  }
+  document.getElementById('export-btn').addEventListener('click', exportData);
+
+  /* ---------- PWA install ---------- */
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('install-btn');
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!isStandalone) installBtn.classList.add('show');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.classList.remove('show');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    installBtn.classList.remove('show');
+    toast('✓ অ্যাপ ইনস্টল হয়েছে!');
+  });
+
+  // iOS has no beforeinstallprompt -> show manual hint
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (isIOS && !isStandalone) document.getElementById('ios-hint').classList.add('show');
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((err) => console.warn('SW registration failed:', err));
+    });
+  }
+
+  initData();
+  renderUI();
+</script>
+</body>
+</html>
