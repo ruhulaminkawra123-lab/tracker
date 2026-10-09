@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>২১ দিনের HSC ও স্কিল ড্যাশবোর্ড</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --card-highlight: #172554;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+    .container { max-width: 900px; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+    
+    header { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+    header h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 6px; }
+    header p { font-size: 0.9rem; color: var(--muted); }
+
+    /* Overall Progress */
+    .progress-box { margin-top: 15px; }
+    .progress-bar-bg { background: #334155; height: 12px; border-radius: 6px; overflow: hidden; }
+    .progress-bar-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.3s ease; }
+    .progress-text { font-size: 0.85rem; margin-top: 6px; color: var(--muted); }
+
+    /* Top Pinned Dashboard Card */
+    .dashboard-pinned-card {
+      background: linear-gradient(145deg, #1e293b, #172554);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    .pinned-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .pinned-badge {
+      background: var(--accent);
+      color: #0b1120;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pinned-title { font-size: 1.35rem; font-weight: bold; }
+    .pinned-status { font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+
+    /* Checklist */
+    .checklist { display: flex; flex-direction: column; gap: 12px; }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .task-item:hover { border-color: var(--border); background: rgba(255, 255, 255, 0.07); }
+    .task-item.checked { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); }
+    .task-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--success); cursor: pointer; }
+    .task-text { flex-grow: 1; }
+    .task-text strong { display: block; font-size: 0.95rem; }
+    .task-text span { display: block; font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+
+    /* Day Navigation Section */
+    .nav-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .nav-title { font-size: 1rem; color: var(--muted); margin-bottom: 12px; }
+    .days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+    .day-btn {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: 0.2s;
+    }
+    .day-btn.active { background: var(--accent); color: #0b1120; border-color: var(--accent); font-weight: bold; }
+    .day-btn.completed { border-color: var(--success); color: var(--success); }
+
+    /* Export Section */
+    .export-section { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+    .export-btn { background: var(--success); color: #000; font-weight: bold; border: none; padding: 12px; border-radius: 8px; cursor: pointer; }
+    textarea { width: 100%; height: 90px; background: #070d17; border: 1px solid var(--border); color: #e2e8f0; padding: 10px; border-radius: 8px; font-family: monospace; resize: none; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>২১ দিনের মিশন ড্যাশবোর্ড (HSC + টেক স্কিল)</h1>
+    <p>প্রতিদিনের সেশন কমপ্লিট করে টিক দাও। ধারাবাহিকতাই একমাত্র রাস্তা।</p>
+    <div class="progress-box">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="overall-bar"></div>
+      </div>
+      <div class="progress-text" id="overall-text">অগ্রগতি: ০% সম্পন্ন (০/১০৫ সেশন)</div>
+    </div>
+  </header>
+
+  <!-- Pinned Dashboard Section (Top View) -->
+  <div class="dashboard-pinned-card">
+    <div class="pinned-header">
+      <div>
+        <span class="pinned-badge">ড্যাশবোর্ড ভিউ</span>
+        <div class="pinned-title" id="active-day-label">দিন ১ এর চেকলিস্ট</div>
+      </div>
+      <div class="pinned-status" id="day-percent">০% সম্পন্ন</div>
+    </div>
+    
+    <div class="checklist" id="tasks-container"></div>
+  </div>
+
+  <!-- Day Selector Grid -->
+  <div class="nav-section">
+    <div class="nav-title">অন্যান্য দিনের ডাটা দেখতে বা পরিবর্তন করতে সিলেক্ট করুন:</div>
+    <div class="days-grid" id="days-container"></div>
+  </div>
+
+  <!-- Data Export -->
+  <div class="export-section">
+    <h3>২১ দিনের অগ্রগতি রিপোর্ট (টিচারকে দেওয়ার জন্য ডাটা)</h3>
+    <button class="export-btn" onclick="exportData()">রিপোর্ট তৈরি ও কপি করুন</button>
+    <textarea id="export-box" readonly placeholder="বাটনে ক্লিক করলে ২১ দিনের সব সেশনের বিস্তারিত রিপোর্ট এখানে আসবে..."></textarea>
+  </div>
+</div>
+
+<script>
+  const SESSIONS = [
+    { title: "১. HSC সেশন ১ (৭:০০ - ৯:০০ AM)", desc: "মুখস্থ ও তাত্ত্বিক বিষয় (৫০ মি. মূল বই পড়া + ২৫ মি. লেখা + ১০ মি. সংশোধন)" },
+    { title: "২. টেক সেশন (১০:০০ - ১১:৩০ AM)", desc: "লিনাক্স, নেটওয়ার্কিং বা প্রায়োগিক স্কিল চর্চা" },
+    { title: "৩. HSC সেশন ২ (২:০০ - ৩:৩০ PM)", desc: "নোট তৈরি এবং বিগত বছরের বোর্ড প্রশ্ন সমাধান" },
+    { title: "৪. HSC সেশন ৩ (৬:৩০ - ৮:০০ PM)", desc: "রাইটিং প্র্যাকটিস ও দিনের পড়া রিভিশন" },
+    { title: "৫. HSC সেশন ৪ (৯:০০ - ১০:৩০ PM)", desc: "দিনের পড়া মূল্যায়ন ও পরের দিনের প্রস্তুতি" }
+  ];
+
+  let currentDay = parseInt(localStorage.getItem('hsc_last_active_day')) || 1;
+  let trackerData = JSON.parse(localStorage.getItem('hsc_tracker_data')) || {};
+
+  function initData() {
+    for (let d = 1; d <= 21; d++) {
+      if (!trackerData[d]) trackerData[d] = [false, false, false, false, false];
+    }
+    saveData();
+  }
+
+  function saveData() {
+    localStorage.setItem('hsc_tracker_data', JSON.stringify(trackerData));
+    localStorage.setItem('hsc_last_active_day', currentDay);
+    updateProgress();
+  }
+
+  function renderDayNav() {
+    const container = document.getElementById('days-container');
+    container.innerHTML = '';
+    for (let d = 1; d <= 21; d++) {
+      const btn = document.createElement('button');
+      btn.className = `day-btn ${d === currentDay ? 'active' : ''}`;
+      const isComplete = trackerData[d].every(Boolean);
+      if (isComplete) btn.classList.add('completed');
+      btn.innerText = `দিন ${d}`;
+      btn.onclick = () => { 
+        currentDay = d; 
+        saveData();
+        renderUI(); 
+      };
+      container.appendChild(btn);
+    }
+  }
+
+  function renderTasks() {
+    document.getElementById('active-day-label').innerText = `দিন ${currentDay} এর চেকলিস্ট`;
+    const container = document.getElementById('tasks-container');
+    container.innerHTML = '';
+
+    SESSIONS.forEach((session, index) => {
+      const isChecked = trackerData[currentDay][index];
+      const item = document.createElement('label');
+      item.className = `task-item ${isChecked ? 'checked' : ''}`;
+      
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = isChecked;
+      checkbox.onchange = (e) => {
+        trackerData[currentDay][index] = e.target.checked;
+        saveData();
+        renderUI();
+      };
+
+      const textDiv = document.createElement('div');
+      textDiv.className = 'task-text';
+      textDiv.innerHTML = `<strong>${session.title}</strong><span>${session.desc}</span>`;
+
+      item.appendChild(checkbox);
+      item.appendChild(textDiv);
+      container.appendChild(item);
+    });
+
+    const dayCompleted = trackerData[currentDay].filter(Boolean).length;
+    document.getElementById('day-percent').innerText = `${Math.round((dayCompleted / 5) * 100)}% সম্পন্ন`;
+  }
+
+  function updateProgress() {
+    let totalSessions = 21 * 5;
+    let completedSessions = 0;
+    for (let d = 1; d <= 21; d++) {
+      completedSessions += trackerData[d].filter(Boolean).length;
+    }
+    const percent = Math.round((completedSessions / totalSessions) * 100);
+    document.getElementById('overall-bar').style.width = `${percent}%`;
+    document.getElementById('overall-text').innerText = `অগ্রগতি: ${percent}% সম্পন্ন (${completedSessions}/${totalSessions} সেশন)`;
+  }
+
+  function renderUI() {
+    renderDayNav();
+    renderTasks();
+    updateProgress();
+  }
+
+  function exportData() {
+    let report = `=== ২১ দিনের HSC ও স্কিল ট্র্যাকার রিপোর্ট ===\n\n`;
+    let totalDone = 0;
+    for (let d = 1; d <= 21; d++) {
+      const dayTasks = trackerData[d];
+      const count = dayTasks.filter(Boolean).length;
+      totalDone += count;
+      report += `দিন ${d}: ${count}/৫ সেশন সম্পন্ন [${dayTasks.map(t => t ? '✓' : '✗').join(' ')}]\n`;
+    }
+    const finalPercent = Math.round((totalDone / (21 * 5)) * 100);
+    report += `\nসর্বমোট সেশন সম্পন্ন: ${totalDone}/১০৫ (${finalPercent}%)\n`;
+    
+    const exportBox = document.getElementById('export-box');
+    exportBox.value = report;
+    exportBox.select();
+    document.execCommand('copy');
+    alert('রিপোর্ট কপি হয়েছে! চ্যাটে পাঠিয়ে দিতে পারবে।');
+  }
+
+  initData();
+  renderUI();
+</script>
+</body>
+</html>
